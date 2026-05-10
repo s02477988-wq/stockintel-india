@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSE/BSE Stock Intelligence Platform</title>
+<style>
+:root{--bg:#0a0e1a;--card:#111827;--card2:#1a2235;--accent:#00d4ff;--green:#00ff88;--red:#ff4466;--yellow:#ffd700;--orange:#ff8c00;--purple:#8b5cf6;--text:#e2e8f0;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+header{background:linear-gradient(135deg,#0a0e1a 0%,#1a1f35 100%);border-bottom:1px solid #1e2d40;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.logo h1{font-size:1.4rem;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo span{font-size:.75rem;color:var(--muted)}
+.live-badge{background:#ff4466;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:999px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.header-right{display:flex;align-items:center;gap:12px}
+.search-wrap{position:relative}
+.search-wrap input{background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:8px 36px 8px 12px;color:var(--text);font-size:.85rem;width:260px;outline:none;transition:.2s}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap .search-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem}
+.search-results{position:absolute;top:110%;left:0;right:0;background:#1a2235;border:1px solid #2a3a50;border-radius:8px;z-index:200;display:none}
+.search-results .sr-item{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;border-bottom:1px solid #2a3a50}
+.search-results .sr-item:hover{background:#243050}
+.search-results .sr-item:last-child{border:none}
+.tabs{display:flex;gap:4px;background:#111827;border-radius:10px;padding:4px;overflow-x:auto}
+.tab{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:500;white-space:nowrap;transition:.2s;color:var(--muted)}
+.tab:hover{color:var(--text)}
+.tab.active{background:#1a2235;color:var(--accent);font-weight:600}
+main{padding:20px 24px;max-width:1600px;margin:0 auto}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid #1e2d40;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.stat-card .label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat-card .value{font-size:1.6rem;font-weight:700}
+.stat-card .sub{font-size:.78rem;color:var(--muted)}
+.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}.accent{color:var(--accent)}.purple{color:var(--purple)}
+.section-title{font-size:1rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:20px;border:1px solid #2a3a50;background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:.2s}
+.filter-btn:hover,.filter-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.card{background:var(--card);border:1px solid #1e2d40;border-radius:14px;padding:18px;margin-bottom:12px;transition:.2s}
+.card:hover{border-color:#2a4060;transform:translateY(-1px)}
+.card.high-impact{border-left:3px solid var(--green)}
+.card.medium-impact{border-left:3px solid var(--yellow)}
+.card.low-impact{border-left:3px solid var(--muted)}
+.card.negative{border-left:3px solid var(--red)}
+.ann-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.ann-company{font-size:1.1rem;font-weight:700;color:var(--accent)}
+.ann-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.3px}
+.badge-green{background:#00ff8820;color:var(--green);border:1px solid #00ff8840}
+.badge-red{background:#ff446620;color:var(--red);border:1px solid #ff446640}
+.badge-yellow{background:#ffd70020;color:var(--yellow);border:1px solid #ffd70040}
+.badge-blue{background:#00d4ff20;color:var(--accent);border:1px solid #00d4ff40}
+.badge-purple{background:#8b5cf620;color:var(--purple);border:1px solid #8b5cf640}
+.badge-orange{background:#ff8c0020;color:var(--orange);border:1px solid #ff8c0040}
+.ann-title{font-size:.92rem;color:var(--text);line-height:1.5;margin-bottom:6px}
+.ann-insight{font-size:.82rem;color:var(--green);background:#00ff8808;border-radius:6px;padding:6px 10px;margin-bottom:8px;border-left:2px solid var(--green)}
+.ann-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.ann-source a{color:var(--accent);font-size:.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.ann-source a:hover{text-decoration:underline}
+.impact-bar{display:flex;align-items:center;gap:6px}
+.impact-bar .bar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--yellow))}
+.hype-score{font-size:.78rem;color:var(--yellow);font-weight:700}
+.price-ticker{display:flex;flex-direction:column;gap:2px}
+.price-ticker .price{font-size:1.1rem;font-weight:700}
+.price-ticker .change{font-size:.75rem}
+/* Watchlist */
+.watchlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.watch-card{background:var(--card);border:1px solid #1e2d40;border-radius:12px;padding:14px;position:relative;cursor:pointer;transition:.2s}
+.watch-card:hover{border-color:var(--accent)}
+.watch-card .remove-btn{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;opacity:0;transition:.2s}
+.watch-card:hover .remove-btn{opacity:1}
+.watch-card .sym{font-size:1rem;font-weight:700;color:var(--accent)}
+.watch-card .w-price{font-size:1.4rem;font-weight:700;margin:4px 0}
+.watch-card .w-change{font-size:.8rem}
+/* Whale */
+.whale-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.whale-card{background:var(--card);border:1px solid #1e2d40;border-radius:14px;padding:16px;cursor:pointer;transition:.2s;text-align:center}
+.whale-card:hover{border-color:var(--purple);transform:translateY(-2px)}
+.whale-avatar{font-size:2.5rem;margin-bottom:8px}
+.whale-name{font-size:.9rem;font-weight:600;color:var(--text)}
+.whale-type{font-size:.72rem;color:var(--muted);margin:2px 0}
+.whale-aum{font-size:.85rem;color:var(--purple);font-weight:600}
+.whale-detail{background:var(--card);border:1px solid #1e2d40;border-radius:14px;padding:20px;display:none}
+.whale-detail.visible{display:block}
+.inv-row{background:#1a2235;border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid var(--purple)}
+.inv-row .inv-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.inv-row .inv-stock{font-size:1rem;font-weight:700;color:var(--accent)}
+.inv-row .inv-action{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.inv-action.BUY{background:#00ff8820;color:var(--green)}
+.inv-action.SELL{background:#ff446620;color:var(--red)}
+.inv-action.HOLD{background:#ffd70020;color:var(--yellow)}
+.inv-action.INCREASE{background:#00d4ff20;color:var(--accent)}
+.inv-row .inv-detail{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.inv-row .inv-potential{font-size:.8rem;color:var(--green);margin-bottom:4px}
+.inv-row .inv-pattern{font-size:.75rem;color:var(--yellow);background:#ffd70010;padding:4px 8px;border-radius:4px}
+/* Govt news */
+.govt-card{background:var(--card);border:1px solid #1e2d40;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;transition:.2s}
+.govt-card:hover{border-color:#2a4060}
+.govt-icon{font-size:1.4rem;min-width:32px}
+.govt-body{flex:1}
+.govt-title a{color:var(--text);text-decoration:none;font-size:.88rem;line-height:1.45;font-weight:500}
+.govt-title a:hover{color:var(--accent)}
+.govt-meta{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.sector-badge{font-size:.68rem;padding:2px 8px;border-radius:999px;background:#8b5cf620;color:var(--purple);border:1px solid #8b5cf640}
+.stocks-affected{font-size:.7rem;color:var(--muted)}
+/* Tab panels */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+/* Trending tickers */
+.ticker-strip{background:#111827;border-bottom:1px solid #1e2d40;padding:8px 24px;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-flex;gap:24px;animation:scroll 40s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{display:inline-flex;align-items:center;gap:6px;font-size:.8rem}
+.ticker-sym{font-weight:700;color:var(--accent)}
+.ticker-val{color:var(--text)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:#00000088;z-index:500;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#111827;border:1px solid #2a3a50;border-radius:16px;padding:24px;max-width:480px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:16px;color:var(--accent)}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+.refresh-btn{background:linear-gradient(135deg,var(--accent),var(--green));color:#000;border:none;padding:8px 20px;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:.2s}
+.refresh-btn:hover{opacity:.85}
+.empty-state{text-align:center;padding:40px;color:var(--muted)}
+.empty-state .icon{font-size:3rem;margin-bottom:12px}
+.loading{text-align:center;padding:30px;color:var(--muted)}
+.loading::after{content:'...';animation:dots 1.5s infinite}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+.nifty-bar{display:flex;gap:16px;align-items:center}
+.nifty-item{text-align:center}
+.nifty-item .n-label{font-size:.65rem;color:var(--muted);text-transform:uppercase}
+.nifty-item .n-val{font-size:.9rem;font-weight:700}
+.nifty-item .n-chg{font-size:.72rem}
+input[type=text].watch-input{background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem;outline:none;width:100%}
+.add-watch-btn{background:var(--accent);color:#000;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;margin-top:8px;width:100%}
+.pattern-box{background:#1a2235;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.8rem}
+.pattern-box .pattern-label{color:var(--yellow);font-weight:600;margin-bottom:4px}
+.pattern-box .pattern-text{color:var(--muted)}
+@media(max-width:768px){header{flex-direction:column;gap:12px}.search-wrap input{width:200px}.tabs{padding:4px 0}}
+</style>
+</head>
+<body>
+
+<!-- Ticker Strip -->
+<div class="ticker-strip" id="tickerStrip">
+  <div class="ticker-inner" id="tickerInner">Loading tickers...</div>
+</div>
+
+<header>
+  <div class="logo">
+    <div>
+      <h1>📈 StockIntel India</h1>
+      <span>NSE · BSE · Whale Tracker · Govt News</span>
+    </div>
+    <span class="live-badge">LIVE</span>
+  </div>
+  <div class="header-right">
+    <div class="search-wrap">
+      <input type="text" id="globalSearch" placeholder="Search stocks, companies..." oninput="handleSearch(this.value)" onblur="setTimeout(()=>document.getElementById('searchResults').style.display='none',200)">
+      <span class="search-icon">🔍</span>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <button class="refresh-btn" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</header>
+
+<main>
+  <!-- Stats Row -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><span class="label">High Impact Alerts</span><span class="value green" id="statHigh">—</span><span class="sub">Score ≥ 7</span></div>
+    <div class="stat-card"><span class="label">Total Announcements</span><span class="value accent" id="statTotal">—</span><span class="sub">Live feed</span></div>
+    <div class="stat-card"><span class="label">Positive Signals</span><span class="value green" id="statPos">—</span><span class="sub">Bullish announcements</span></div>
+    <div class="stat-card"><span class="label">Whale Buys Today</span><span class="value purple" id="statWhale">8</span><span class="sub">Big money moves</span></div>
+    <div class="stat-card"><span class="label">Govt News</span><span class="value yellow" id="statGovt">—</span><span class="sub">Policy impact</span></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" style="margin-bottom:20px">
+    <div class="tab active" onclick="switchTab('announcements',this)">🔔 Announcements</div>
+    <div class="tab" onclick="switchTab('watchlist',this)">⭐ Watchlist</div>
+    <div class="tab" onclick="switchTab('whales',this)">🐋 Whale Tracker</div>
+    <div class="tab" onclick="switchTab('govt',this)">🏛️ Govt & Policy</div>
+  </div>
+
+  <!-- ANNOUNCEMENTS TAB -->
+  <div class="tab-panel active" id="tab-announcements">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterAnn('all',this)">All</button>
+      <button class="filter-btn" onclick="filterAnn('positive',this)">📈 Positive</button>
+      <button class="filter-btn" onclick="filterAnn('negative',this)">📉 Negative</button>
+      <button class="filter-btn" onclick="filterAnn('high',this)">🔥 High Impact (7+)</button>
+      <button class="filter-btn" onclick="filterAnn('earnings',this)">💰 Earnings</button>
+      <button class="filter-btn" onclick="filterAnn('deal',this)">🤝 Deals</button>
+      <button class="filter-btn" onclick="filterAnn('ma',this)">🔀 M&amp;A</button>
+    </div>
+    <div id="annList"><div class="loading">Fetching live announcements</div></div>
+  </div>
+
+  <!-- WATCHLIST TAB -->
+  <div class="tab-panel" id="tab-watchlist">
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:200px">
+        <label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:6px">Add Stock to Watchlist</label>
+        <input type="text" class="watch-input" id="watchInput" placeholder="e.g. RELIANCE, TCS, INFY" list="stocksList">
+        <datalist id="stocksList">
+          <option value="RELIANCE"><option value="TCS"><option value="HDFCBANK"><option value="WIPRO"><option value="INFOSYS">
+          <option value="TATAMOTORS"><option value="ICICIBANK"><option value="BAJFINANCE"><option value="SUNPHARMA"><option value="SBIN">
+          <option value="MARUTI"><option value="ONGC"><option value="COALINDIA"><option value="HCLTECH"><option value="ADANIPORTS">
+        </datalist>
+        <button class="add-watch-btn" onclick="addToWatchlist()">+ Add to Watchlist</button>
+      </div>
+    </div>
+    <div class="watchlist-grid" id="watchlistGrid">
+      <div class="empty-state"><div class="icon">⭐</div><p>Add stocks above to track them here</p></div>
+    </div>
+  </div>
+
+  <!-- WHALE TRACKER TAB -->
+  <div class="tab-panel" id="tab-whales">
+    <div class="section-title">🐋 Big Money Investors — Click a whale to see their latest moves</div>
+    <div class="whale-grid" id="whaleGrid">
+      <div class="loading">Loading whale data</div>
+    </div>
+    <div id="whaleDetail"></div>
+  </div>
+
+  <!-- GOVT & POLICY TAB -->
+  <div class="tab-panel" id="tab-govt">
+    <div class="section-title">🏛️ Government & Policy News — Sector Impact</div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterGovt('all',this)">All Sectors</button>
+      <button class="filter-btn" onclick="filterGovt('Banking & Finance',this)">🏦 Banking</button>
+      <button class="filter-btn" onclick="filterGovt('Technology',this)">💻 Technology</button>
+      <button class="filter-btn" onclick="filterGovt('Auto',this)">🚗 Auto</button>
+      <button class="filter-btn" onclick="filterGovt('Infrastructure',this)">🏗️ Infra</button>
+      <button class="filter-btn" onclick="filterGovt('Energy',this)">⚡ Energy</button>
+      <button class="filter-btn" onclick="filterGovt('Pharma',this)">💊 Pharma</button>
+    </div>
+    <div id="govtList"><div class="loading">Fetching government news</div></div>
+  </div>
+</main>
+
+<script>
+let allAnnouncements = [];
+let allGovtNews = [];
+let watchlist = JSON.parse(localStorage.getItem('watchlist') || '["RELIANCE","TCS","HDFCBANK"]');
+let currentFilter = 'all';
+let currentGovtFilter = 'all';
+
+// INIT
+async function init() {
+  loadTicker();
+  loadAnnouncements();
+  loadGovtNews();
+  loadWhales();
+  renderWatchlist();
+}
+
+// TICKER STRIP
+async function loadTicker() {
+  try {
+    const res = await fetch('/api/stock-prices');
+    const prices = await res.json();
+    let html = '';
+    for (const [sym, d] of Object.entries(prices)) {
+      const color = d.pct >= 0 ? '#00ff88' : '#ff4466';
+      const arrow = d.pct >= 0 ? '▲' : '▼';
+      html += `<span class="ticker-item"><span class="ticker-sym">${sym}</span><span class="ticker-val">₹${d.price}</span><span style="color:${color}">${arrow}${Math.abs(d.pct)}%</span></span>`;
+    }
+    // duplicate for infinite scroll
+    const inner = document.getElementById('tickerInner');
+    inner.innerHTML = html + html;
+  } catch(e) { document.getElementById('tickerInner').textContent = 'NSE · BSE · Live Market Data'; }
+}
+
+// ANNOUNCEMENTS
+async function loadAnnouncements() {
+  document.getElementById('annList').innerHTML = '<div class="loading">Fetching live announcements</div>';
+  try {
+    const res = await fetch('/api/announcements');
+    allAnnouncements = await res.json();
+    renderAnnouncements();
+    updateStats();
+  } catch(e) {
+    document.getElementById('annList').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load. <a href="#" onclick="loadAnnouncements()">Retry</a></p></div>';
+  }
+}
+
+function renderAnnouncements() {
+  let filtered = allAnnouncements;
+  if (currentFilter === 'positive') filtered = filtered.filter(a => a.sentiment === 'Positive');
+  else if (currentFilter === 'negative') filtered = filtered.filter(a => a.sentiment === 'Negative');
+  else if (currentFilter === 'high') filtered = filtered.filter(a => a.impact >= 7);
+  else if (currentFilter === 'earnings') filtered = filtered.filter(a => a.type === 'Earnings');
+  else if (currentFilter === 'deal') filtered = filtered.filter(a => a.type === 'Deal');
+  else if (currentFilter === 'ma') filtered = filtered.filter(a => a.type === 'M&A');
+
+  if (!filtered.length) {
+    document.getElementById('annList').innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No announcements match this filter</p></div>';
+    return;
+  }
+
+  document.getElementById('annList').innerHTML = filtered.map(a => {
+    const impactClass = a.impact >= 7 ? 'high-impact' : a.impact >= 4 ? 'medium-impact' : a.sentiment === 'Negative' ? 'negative' : 'low-impact';
+    const sentBadge = a.sentiment === 'Positive' ? 'badge-green' : a.sentiment === 'Negative' ? 'badge-red' : 'badge-yellow';
+    const dirArrow = a.direction === 'up' ? '▲' : a.direction === 'down' ? '▼' : '→';
+    const dirColor = a.direction === 'up' ? 'var(--green)' : a.direction === 'down' ? 'var(--red)' : 'var(--yellow)';
+    const typeBadge = a.type === 'M&A' ? 'badge-purple' : a.type === 'Deal' ? 'badge-blue' : a.type === 'Earnings' ? 'badge-green' : a.type === 'Regulatory' ? 'badge-orange' : 'badge-yellow';
+    const barW = Math.min(100, a.impact * 10);
+    return `
+    <div class="card ${impactClass}">
+      <div class="ann-header">
+        <div>
+          <div class="ann-company">${a.company}</div>
+          <div class="ann-meta" style="margin-top:4px">
+            <span class="badge ${sentBadge}">${dirArrow} ${a.sentiment}</span>
+            <span class="badge ${typeBadge}">${a.type}</span>
+            <span class="hype-score">🔥 Hype: ${a.hype_score}</span>
+          </div>
+        </div>
+        <div style="text-align:right;min-width:80px">
+          <div style="font-size:.72rem;color:var(--muted)">Impact</div>
+          <div style="font-size:1.4rem;font-weight:700;color:${dirColor}">${a.impact}/10</div>
+          <div class="impact-bar"><div class="bar" style="width:${barW}px"></div></div>
+        </div>
+      </div>
+      <div class="ann-title">${a.title}</div>
+      <div class="ann-insight">💡 ${a.summary}</div>
+      <div class="ann-footer">
+        <div class="ann-source">🔗 Source: <a href="${a.link}" target="_blank">${a.source} ↗</a> &nbsp; <span style="color:var(--muted);font-size:.72rem">${a.time}</span></div>
+        <div style="display:flex;gap:8px">
+          <button onclick="addToWatchlistByName('${a.company}')" style="background:none;border:1px solid #2a3a50;color:var(--accent);font-size:.72rem;padding:3px 10px;border-radius:6px;cursor:pointer">⭐ Watch</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterAnn(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => { if(b.closest('#tab-announcements')) b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAnnouncements();
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allAnnouncements.length;
+  document.getElementById('statHigh').textContent = allAnnouncements.filter(a=>a.impact>=7).length;
+  document.getElementById('statPos').textContent = allAnnouncements.filter(a=>a.sentiment==='Positive').length;
+  document.getElementById('statGovt').textContent = allGovtNews.length || '—';
+}
+
+// WATCHLIST
+function renderWatchlist() {
+  const grid = document.getElementById('watchlistGrid');
+  if (!watchlist.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>Add stocks above to track them here</p></div>';
+    return;
+  }
+  grid.innerHTML = watchlist.map(sym => `
+    <div class="watch-card" id="wcard-${sym}">
+      <button class="remove-btn" onclick="removeWatch('${sym}')">✕</button>
+      <div class="sym">${sym}</div>
+      <div class="w-price" id="wp-${sym}">Loading...</div>
+      <div class="w-change" id="wc-${sym}"></div>
+    </div>`).join('');
+  watchlist.forEach(sym => loadWatchPrice(sym));
+}
+
+async function loadWatchPrice(sym) {
+  try {
+    const res = await fetch(`/api/stock-price/${sym}`);
+    const d = await res.json();
+    if (d.price) {
+      const el = document.getElementById(`wp-${sym}`);
+      const chg = document.getElementById(`wc-${sym}`);
+      if(el) el.textContent = `₹${d.price}`;
+      if(chg) {
+        const color = d.pct >= 0 ? '#00ff88' : '#ff4466';
+        const arrow = d.pct >= 0 ? '▲' : '▼';
+        chg.innerHTML = `<span style="color:${color}">${arrow} ${Math.abs(d.change)} (${Math.abs(d.pct)}%)</span>`;
+      }
+    }
+  } catch(e) {}
+}
+
+function addToWatchlist() {
+  const input = document.getElementById('watchInput');
+  const sym = input.value.trim().toUpperCase();
+  if (sym && !watchlist.includes(sym)) {
+    watchlist.push(sym);
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+    input.value = '';
+    renderWatchlist();
+    switchTab('watchlist', document.querySelector('.tab:nth-child(2)'));
+  }
+}
+
+function addToWatchlistByName(sym) {
+  sym = sym.toUpperCase();
+  if (sym && !watchlist.includes(sym)) {
+    watchlist.push(sym);
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+    alert(`✅ ${sym} added to watchlist!`);
+  }
+}
+
+function removeWatch(sym) {
+  watchlist = watchlist.filter(s => s !== sym);
+  localStorage.setItem('watchlist', JSON.stringify(watchlist));
+  renderWatchlist();
+}
+
+// WHALE TRACKER
+async function loadWhales() {
+  try {
+    const res = await fetch('/api/whales');
+    const whales = await res.json();
+    document.getElementById('whaleGrid').innerHTML = whales.map(w => `
+      <div class="whale-card" onclick="loadWhaleDetail('${w.id}','${w.name}')">
+        <div class="whale-avatar">${w.avatar}</div>
+        <div class="whale-name">${w.name}</div>
+        <div class="whale-type">${w.type}</div>
+        <div class="whale-aum">AUM: ${w.aum}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Click to see investments →</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function loadWhaleDetail(id, name) {
+  const detailDiv = document.getElementById('whaleDetail');
+  detailDiv.innerHTML = '<div class="loading">Loading investments</div>';
+  detailDiv.style.marginTop = '20px';
+  try {
+    const res = await fetch(`/api/whale/${id}`);
+    const data = await res.json();
+    const inv = data.investments;
+    if (!inv.length) { detailDiv.innerHTML = '<div class="empty-state">No recent investments tracked</div>'; return; }
+    detailDiv.innerHTML = `
+      <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:1rem;font-weight:700;color:var(--purple)">${data.whale.avatar} ${name} — Latest Investments</span>
+        <button onclick="document.getElementById('whaleDetail').innerHTML=''" style="background:none;border:1px solid #2a3a50;color:var(--muted);font-size:.75rem;padding:3px 10px;border-radius:6px;cursor:pointer">✕ Close</button>
+      </div>
+      ${inv.map(i => `
+      <div class="inv-row">
+        <div class="inv-header">
+          <span class="inv-stock">${i.stock}</span>
+          <span class="inv-action ${i.action}">${i.action}</span>
+          <span style="font-size:.75rem;color:var(--muted)">${i.date}</span>
+        </div>
+        <div class="inv-detail">📦 Qty: ${i.qty} &nbsp; 💰 Avg Price: ${i.price} &nbsp; 🏷️ Value: ${i.value}</div>
+        <div class="inv-potential">🎯 ${i.potential}</div>
+        <div class="inv-pattern">📊 Pattern: ${i.pattern}</div>
+      </div>`).join('')}`;
+  } catch(e) { detailDiv.innerHTML = '<div class="empty-state">Failed to load</div>'; }
+}
+
+// GOVT NEWS
+async function loadGovtNews() {
+  document.getElementById('govtList').innerHTML = '<div class="loading">Fetching government news</div>';
+  try {
+    const res = await fetch('/api/govt-news');
+    allGovtNews = await res.json();
+    renderGovtNews();
+    document.getElementById('statGovt').textContent = allGovtNews.length;
+  } catch(e) {}
+}
+
+function renderGovtNews() {
+  let filtered = allGovtNews;
+  if (currentGovtFilter !== 'all') filtered = filtered.filter(n => n.sector === currentGovtFilter);
+  if (!filtered.length) { document.getElementById('govtList').innerHTML = '<div class="empty-state"><div class="icon">🏛️</div><p>No news for this sector</p></div>'; return; }
+
+  const icons = {'Banking & Finance':'🏦','Technology':'💻','Auto':'🚗','Infrastructure':'🏗️','Energy':'⚡','Pharma':'💊','FMCG':'🛒','Real Estate':'🏘️','General Market':'📊'};
+  document.getElementById('govtList').innerHTML = filtered.map(n => `
+    <div class="govt-card">
+      <div class="govt-icon">${icons[n.sector]||'📋'}</div>
+      <div class="govt-body">
+        <div class="govt-title"><a href="${n.link}" target="_blank">${n.title} ↗</a></div>
+        <div class="govt-meta">
+          <span class="badge ${n.sentiment==='Positive'?'badge-green':n.sentiment==='Negative'?'badge-red':'badge-yellow'}">${n.sentiment}</span>
+          <span class="sector-badge">${n.sector}</span>
+          <span style="font-size:.7rem;color:var(--muted)">📰 ${n.source}</span>
+          <span class="stocks-affected">📌 Affects: ${(n.affected_stocks||[]).join(', ')}</span>
+        </div>
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;color:${n.impact>=7?'var(--green)':n.impact>=4?'var(--yellow)':'var(--muted)'};min-width:40px;text-align:center">${n.impact}/10</div>
+    </div>`).join('');
+}
+
+function filterGovt(sector, btn) {
+  currentGovtFilter = sector;
+  document.querySelectorAll('#tab-govt .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGovtNews();
+}
+
+// SEARCH
+async function handleSearch(q) {
+  const res_div = document.getElementById('searchResults');
+  if (q.length < 1) { res_div.style.display='none'; return; }
+  try {
+    const res = await fetch(`/api/search/${q}`);
+    const results = await res.json();
+    if (!results.length) { res_div.style.display='none'; return; }
+    res_div.style.display = 'block';
+    res_div.innerHTML = results.slice(0,6).map(r => `
+      <div class="sr-item" onclick="addToWatchlistByName('${r.symbol}');res_div.style.display='none'">
+        <span>${r.symbol}</span>
+        <span style="font-size:.7rem;color:var(--muted)">+ Add to Watchlist</span>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// TAB SWITCH
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+// REFRESH
+function refreshAll() {
+  loadTicker();
+  loadAnnouncements();
+  loadGovtNews();
+  renderWatchlist();
+}
+
+// START
+init();
+setInterval(loadTicker, 60000);
+setInterval(loadAnnouncements, 300000);
+</script>
+</body>
+</html>
+<script>
+// ── PUSH NOTIFICATIONS ──────────────────────────────────────────
+let notifGranted = false;
+let lastAlertedIds = new Set();
+
+async function requestNotifPermission() {
+  if (!("Notification" in window)) return;
+  const perm = await Notification.requestPermission();
+  notifGranted = perm === "granted";
+  const btn = document.getElementById("notifBtn");
+  if (btn) btn.textContent = notifGranted ? "🔔 Alerts ON" : "🔕 Alerts OFF";
+}
+
+function sendNotification(title, body, url) {
+  if (!notifGranted) return;
+  const n = new Notification(title, {
+    body: body,
+    icon: "https://img.icons8.com/emoji/48/chart-increasing-emoji.png",
+    badge: "https://img.icons8.com/emoji/48/chart-increasing-emoji.png",
+    tag: title,
+    requireInteraction: true
+  });
+  n.onclick = () => { window.open(url || "/", "_blank"); n.close(); };
+}
+
+async function checkForHighImpactAlerts() {
+  try {
+    const res = await fetch("/api/announcements");
+    const data = await res.json();
+    const highImpact = data.filter(a => a.impact >= 8 && a.sentiment === "Positive");
+    highImpact.forEach(a => {
+      const id = a.company + a.title.slice(0, 30);
+      if (!lastAlertedIds.has(id)) {
+        lastAlertedIds.add(id);
+        sendNotification(
+          `📈 ${a.company} — Impact ${a.impact}/10`,
+          a.summary.slice(0, 100),
+          a.link
+        );
+      }
+    });
+  } catch(e) {}
+}
+
+// Add notification button to header on DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  const hr = document.querySelector(".header-right");
+  if (hr) {
+    const btn = document.createElement("button");
+    btn.id = "notifBtn";
+    btn.className = "refresh-btn";
+    btn.style.background = "linear-gradient(135deg,#8b5cf6,#00d4ff)";
+    btn.textContent = "🔔 Enable Alerts";
+    btn.onclick = requestNotifPermission;
+    hr.insertBefore(btn, hr.firstChild);
+  }
+  // Auto-check every 5 minutes
+  setInterval(checkForHighImpactAlerts, 300000);
+});
+</script>

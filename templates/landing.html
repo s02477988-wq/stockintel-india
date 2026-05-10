@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockIntel India — NSE & BSE Intelligence Platform</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#040810;--card:#0d1424;--accent:#00d4ff;--green:#00ff88;--yellow:#ffd700;--purple:#8b5cf6;--red:#ff4466;--text:#e2e8f0;--muted:#64748b}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,8,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid #ffffff08}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo span{font-size:1.25rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-logo .dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:.2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:linear-gradient(135deg,var(--accent),var(--green));color:#000;padding:10px 24px;border-radius:8px;font-weight:700;font-size:.88rem;text-decoration:none;transition:.2s}
+.nav-cta:hover{opacity:.85;transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 20%,#00d4ff12 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 80% 80%,#00ff8808 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 20% 70%,#8b5cf608 0%,transparent 60%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#00d4ff12;border:1px solid #00d4ff30;border-radius:999px;padding:6px 16px;font-size:.78rem;font-weight:600;color:var(--accent);margin-bottom:24px}
+.hero h1{font-size:clamp(2.4rem,6vw,5rem);font-weight:900;line-height:1.1;margin-bottom:24px;letter-spacing:-1.5px}
+.hero h1 .grad{background:linear-gradient(135deg,var(--accent) 0%,var(--green) 50%,var(--yellow) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.15rem;color:var(--muted);max-width:600px;margin:0 auto 40px;line-height:1.7}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--green));color:#000;padding:16px 36px;border-radius:10px;font-weight:800;font-size:1rem;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px #00d4ff40}
+.btn-sec{background:transparent;border:1px solid #2a3a50;color:var(--text);padding:16px 36px;border-radius:10px;font-weight:600;font-size:1rem;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px;flex-wrap:wrap}
+.h-stat{text-align:center}
+.h-stat .val{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.h-stat .lbl{font-size:.78rem;color:var(--muted);margin-top:2px}
+
+/* TICKER */
+.ticker-wrap{background:#0d1424;border-top:1px solid #1e2d40;border-bottom:1px solid #1e2d40;padding:12px 0;overflow:hidden}
+.ticker-track{display:flex;gap:32px;animation:ticker 30s linear infinite;white-space:nowrap}
+.ticker-track span{font-size:.82rem;font-weight:500;color:var(--muted)}
+.ticker-track .up{color:var(--green);font-weight:700}
+.ticker-track .dn{color:var(--red);font-weight:700}
+.ticker-track .sym{color:var(--accent);font-weight:700}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* FEATURES */
+section{padding:100px 24px}
+.section-label{text-align:center;font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title{text-align:center;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;margin-bottom:16px;letter-spacing:-0.5px}
+.section-sub{text-align:center;color:var(--muted);font-size:1rem;max-width:560px;margin:0 auto 60px;line-height:1.7}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1200px;margin:0 auto}
+.feat-card{background:var(--card);border:1px solid #1e2d40;border-radius:16px;padding:28px;transition:.3s;position:relative;overflow:hidden}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:.3s}
+.feat-card:hover{border-color:#2a4060;transform:translateY(-4px)}
+.feat-card:hover::before{opacity:1}
+.feat-icon{font-size:2.2rem;margin-bottom:16px}
+.feat-card h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.feat-card p{font-size:.88rem;color:var(--muted);line-height:1.6}
+.feat-tag{display:inline-block;margin-top:12px;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:999px;background:#00d4ff15;color:var(--accent);border:1px solid #00d4ff30}
+
+/* HOW IT WORKS */
+.how-section{background:linear-gradient(180deg,var(--bg) 0%,#080f1f 50%,var(--bg) 100%)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;max-width:1100px;margin:0 auto;position:relative}
+.step{text-align:center;padding:24px}
+.step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--green));color:#000;font-size:1.2rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.step h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+.step p{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* WHALE SECTION */
+.whale-section{background:#080f1f}
+.whale-cards{display:flex;gap:16px;overflow-x:auto;padding:8px 0 20px;max-width:1200px;margin:0 auto;scrollbar-width:none}
+.whale-cards::-webkit-scrollbar{display:none}
+.wc{min-width:180px;background:var(--card);border:1px solid #1e2d40;border-radius:14px;padding:20px;text-align:center;flex-shrink:0}
+.wc-emoji{font-size:2rem;margin-bottom:8px}
+.wc-name{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.wc-type{font-size:.7rem;color:var(--muted);margin-bottom:6px}
+.wc-aum{font-size:.8rem;color:var(--purple);font-weight:600}
+
+/* ALERTS SECTION */
+.alert-demo{max-width:480px;margin:0 auto;background:var(--card);border:1px solid #1e2d40;border-radius:16px;padding:24px}
+.alert-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #1e2d40}
+.alert-item:last-child{border:none}
+.alert-ico{font-size:1.6rem;min-width:36px}
+.alert-body .a-company{font-size:.9rem;font-weight:700;color:var(--accent)}
+.alert-body .a-title{font-size:.8rem;color:var(--text);margin:2px 0}
+.alert-body .a-score{font-size:.72rem;display:flex;gap:8px;align-items:center}
+.score-badge{padding:2px 8px;border-radius:999px;font-weight:700;font-size:.7rem}
+.score-9{background:#00ff8820;color:var(--green);border:1px solid #00ff8840}
+.score-8{background:#ffd70020;color:var(--yellow);border:1px solid #ffd70040}
+.notif-mock{background:#1a2235;border:1px solid #2a3a50;border-radius:12px;padding:14px;margin-top:24px;display:flex;align-items:center;gap:12px}
+.notif-mock .n-icon{font-size:1.8rem}
+.notif-mock .n-body .n-title{font-size:.82rem;font-weight:700}
+.notif-mock .n-body .n-text{font-size:.75rem;color:var(--muted)}
+
+/* GOVT */
+.govt-demo{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.gd-item{background:var(--card);border:1px solid #1e2d40;border-radius:12px;padding:16px;display:flex;gap:12px;align-items:center}
+.gd-icon{font-size:1.4rem}
+.gd-text{font-size:.85rem;color:var(--text);font-weight:500}
+.gd-sector{font-size:.7rem;padding:2px 8px;border-radius:999px;background:#8b5cf620;color:var(--purple);border:1px solid #8b5cf640;margin-top:4px;display:inline-block}
+
+/* CTA */
+.cta-section{background:linear-gradient(135deg,#00d4ff08,#00ff8808,#8b5cf608);border-top:1px solid #1e2d40}
+.cta-box{max-width:700px;margin:0 auto;text-align:center}
+.cta-box h2{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;margin-bottom:16px;letter-spacing:-1px}
+.cta-box p{color:var(--muted);font-size:1rem;margin-bottom:40px;line-height:1.7}
+
+/* FOOTER */
+footer{background:#040810;border-top:1px solid #1e2d40;padding:40px 60px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+footer .f-logo{font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+footer .f-links{display:flex;gap:24px}
+footer .f-links a{color:var(--muted);text-decoration:none;font-size:.82rem;transition:.2s}
+footer .f-links a:hover{color:var(--accent)}
+footer .f-copy{font-size:.78rem;color:var(--muted)}
+
+@media(max-width:768px){nav{padding:16px 20px}.nav-links{display:none}footer{padding:24px 20px;flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span>📈 StockIntel India</span>
+    <div class="dot"></div>
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#whales">Whale Tracker</a>
+    <a href="#alerts">Alerts</a>
+    <a href="#govt">Govt News</a>
+  </div>
+  <a href="/dashboard" class="nav-cta">Launch App →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div style="position:relative;z-index:1">
+    <div class="hero-badge">🔴 LIVE &nbsp;|&nbsp; NSE · BSE · Real-Time Intelligence</div>
+    <h1>Never Miss a Stock<br><span class="grad">That's About to Move</span></h1>
+    <p>AI-powered NSE & BSE monitoring that tracks every announcement, whale investor move, government policy — and alerts you before the market reacts.</p>
+    <div class="hero-btns">
+      <a href="/dashboard" class="btn-primary">🚀 Open Live Dashboard</a>
+      <a href="#features" class="btn-sec">✦ See All Features</a>
+    </div>
+    <div class="hero-stats">
+      <div class="h-stat"><div class="val">15+</div><div class="lbl">Live Announcements</div></div>
+      <div class="h-stat"><div class="val">8</div><div class="lbl">Whale Investors Tracked</div></div>
+      <div class="h-stat"><div class="val">10+</div><div class="lbl">Govt Policy Alerts</div></div>
+      <div class="h-stat"><div class="val">Real-Time</div><div class="lbl">Price Updates</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="tickerTrack">
+    <span><span class="sym">RELIANCE</span> ₹1,435 <span class="dn">▼0.07%</span></span>
+    <span><span class="sym">TCS</span> ₹2,394 <span class="dn">▼0.29%</span></span>
+    <span><span class="sym">HDFCBANK</span> ₹1,621 <span class="up">▲1.2%</span></span>
+    <span><span class="sym">INFOSYS</span> ₹1,489 <span class="up">▲0.85%</span></span>
+    <span><span class="sym">TATAMOTORS</span> ₹612 <span class="up">▲2.1%</span></span>
+    <span><span class="sym">WIPRO</span> ₹298 <span class="up">▲1.4%</span></span>
+    <span><span class="sym">SBIN</span> ₹821 <span class="up">▲0.6%</span></span>
+    <span><span class="sym">ICICIBANK</span> ₹1,248 <span class="up">▲0.9%</span></span>
+    <span><span class="sym">BAJFINANCE</span> ₹7,210 <span class="dn">▼0.3%</span></span>
+    <span><span class="sym">SUNPHARMA</span> ₹1,720 <span class="up">▲1.7%</span></span>
+    <span><span class="sym">RELIANCE</span> ₹1,435 <span class="dn">▼0.07%</span></span>
+    <span><span class="sym">TCS</span> ₹2,394 <span class="dn">▼0.29%</span></span>
+    <span><span class="sym">HDFCBANK</span> ₹1,621 <span class="up">▲1.2%</span></span>
+    <span><span class="sym">INFOSYS</span> ₹1,489 <span class="up">▲0.85%</span></span>
+    <span><span class="sym">TATAMOTORS</span> ₹612 <span class="up">▲2.1%</span></span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">Platform Features</div>
+  <h2 class="section-title">Everything You Need to<br>Trade Smarter</h2>
+  <p class="section-sub">One platform that pulls NSE filings, BSE announcements, whale moves, and government policy — scored, summarised, and delivered to you first.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon">🔔</div>
+      <h3>NSE & BSE Announcements</h3>
+      <p>Every corporate filing, earnings result, dividend, bonus, and M&A deal — scored 1–10 for price impact with a 2-line trading insight.</p>
+      <span class="feat-tag">Live Feed</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🐋</div>
+      <h3>Whale Investor Tracker</h3>
+      <p>Track LIC, Rakesh Jhunjhunwala Estate, Vijay Kedia, Dolly Khanna, FPIs & more. See every buy, sell, and pattern with date and value.</p>
+      <span class="feat-tag">8 Whales Tracked</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏛️</div>
+      <h3>Government & Policy News</h3>
+      <p>RBI, SEBI, PIB, Finance Ministry — filtered by sector. See exactly which stocks are affected with one-line summaries and source links.</p>
+      <span class="feat-tag">Sector Impact</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Impact Scoring & Hype Score</h3>
+      <p>AI analyses each announcement for sentiment, direction prediction (up/down), and assigns an impact score. Know what matters before the crowd.</p>
+      <span class="feat-tag">AI Powered</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⭐</div>
+      <h3>Personal Watchlist</h3>
+      <p>Build your custom watchlist with live prices, % change, and real-time updates. Saved in your browser — access from any device.</p>
+      <span class="feat-tag">Live Prices</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔍</div>
+      <h3>Search Any Stock</h3>
+      <p>Search across all NSE/BSE listed stocks instantly. Add to watchlist with one click. Filter announcements by company, type, or impact.</p>
+      <span class="feat-tag">Instant Search</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-label">How It Works</div>
+  <h2 class="section-title">From Filing to Alert<br>in Seconds</h2>
+  <p class="section-sub">StockIntel monitors sources 24×7 so you don't have to.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Monitor Sources</h3>
+      <p>Continuously scrapes NSE/BSE filings, Economic Times, Moneycontrol, PIB, RBI, and SEBI in real time.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>AI Scores It</h3>
+      <p>Every announcement is analysed for sentiment, price direction, and given an impact score from 1–10.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>You Get Alerted</h3>
+      <p>Impact 8+ triggers an instant browser notification — company name, score, and direct link to the source.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>You Trade First</h3>
+      <p>Act before the market fully prices in the news. Every notification links to the original filing or article.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHALE TRACKER -->
+<section class="whale-section" id="whales">
+  <div class="section-label">Whale Tracker</div>
+  <h2 class="section-title">Follow the Big Money</h2>
+  <p class="section-sub">When whales buy, prices follow. Track every major institutional and ace investor move with dates, values, and pattern analysis.</p>
+  <div class="whale-cards">
+    <div class="wc"><div class="wc-emoji">🐋</div><div class="wc-name">Rakesh Jhunjhunwala Estate</div><div class="wc-type">Legendary Investor</div><div class="wc-aum">₹35,000 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🦈</div><div class="wc-name">Mukesh Ambani</div><div class="wc-type">Promoter</div><div class="wc-aum">₹8,50,000 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🏛️</div><div class="wc-name">LIC of India</div><div class="wc-type">Institutional</div><div class="wc-aum">₹40,00,000 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🏦</div><div class="wc-name">SBI Mutual Fund</div><div class="wc-type">Mutual Fund</div><div class="wc-aum">₹7,50,000 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🌐</div><div class="wc-name">Foreign Portfolio Investors</div><div class="wc-type">FPI Aggregate</div><div class="wc-aum">₹60,00,000 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🐋</div><div class="wc-name">Vijay Kedia</div><div class="wc-type">Ace Investor</div><div class="wc-aum">₹1,200 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🦈</div><div class="wc-name">Radhakishan Damani</div><div class="wc-type">Ace Investor</div><div class="wc-aum">₹2,00,000 Cr</div></div>
+    <div class="wc"><div class="wc-emoji">🐋</div><div class="wc-name">Dolly Khanna</div><div class="wc-type">Ace Investor</div><div class="wc-aum">₹600 Cr</div></div>
+  </div>
+</section>
+
+<!-- ALERTS DEMO -->
+<section id="alerts">
+  <div class="section-label">Smart Alerts</div>
+  <h2 class="section-title">Get Notified Before<br>the Market Reacts</h2>
+  <p class="section-sub">Enable browser alerts and get instant desktop notifications for every high-impact announcement (Impact 8+).</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:900px;margin:0 auto;align-items:start" class="alert-grid">
+    <div class="alert-demo">
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">🔥 Today's High Impact Alerts</div>
+      <div class="alert-item">
+        <div class="alert-ico">📈</div>
+        <div class="alert-body">
+          <div class="a-company">SBIN</div>
+          <div class="a-title">Record quarterly profit ₹22,000 Cr; NPA at 10-year low</div>
+          <div class="a-score"><span class="score-badge score-9">9/10</span> Earnings · Positive ↑</div>
+        </div>
+      </div>
+      <div class="alert-item">
+        <div class="alert-ico">🤝</div>
+        <div class="alert-body">
+          <div class="a-company">TCS</div>
+          <div class="a-title">$2.5B deal with European telecom for digital transformation</div>
+          <div class="a-score"><span class="score-badge score-9">9/10</span> Deal · Positive ↑</div>
+        </div>
+      </div>
+      <div class="alert-item">
+        <div class="alert-ico">⛽</div>
+        <div class="alert-body">
+          <div class="a-company">ONGC</div>
+          <div class="a-title">New deep-sea reserve discovered off Andhra coast — 500 MMbbl</div>
+          <div class="a-score"><span class="score-badge score-9">9/10</span> Discovery · Positive ↑</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:.88rem;color:var(--muted);margin-bottom:20px;line-height:1.7">Browser notifications fire instantly when a stock hits <strong style="color:var(--yellow)">Impact 8+</strong>. Click the notification to go straight to the source filing or news article.</div>
+      <div class="notif-mock">
+        <div class="n-icon">📈</div>
+        <div class="n-body">
+          <div class="n-title">HDFCBANK — Impact 9/10</div>
+          <div class="n-text">Q4 profit surges 32% to ₹18,500 Cr, NIM expands to 4.2%...</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:14px;background:#00ff8808;border:1px solid #00ff8830;border-radius:10px;font-size:.82rem;color:var(--green)">
+        ✅ Works on desktop & mobile<br>✅ No app download needed<br>✅ Click notification → direct source link<br>✅ Checks every 5 minutes automatically
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVT NEWS -->
+<section id="govt" style="background:#080f1f">
+  <div class="section-label">Government & Policy</div>
+  <h2 class="section-title">Policy Moves That<br>Move Markets</h2>
+  <p class="section-sub">RBI, SEBI, Finance Ministry, PIB — every policy announcement tagged by sector with affected stocks highlighted.</p>
+  <div class="govt-demo">
+    <div class="gd-item"><div class="gd-icon">🚗</div><div><div class="gd-text">EV policy: 100% road tax exemption to 2027, GST cut to 5% on commercial EVs</div><span class="gd-sector">Auto → TATAMOTORS, OLECTRA</span></div></div>
+    <div class="gd-item"><div class="gd-icon">🏗️</div><div><div class="gd-text">Govt allocates ₹2.5 lakh Cr for infrastructure push in FY26 budget</div><span class="gd-sector">Infrastructure → ADANIPORTS, L&T</span></div></div>
+    <div class="gd-item"><div class="gd-icon">🏦</div><div><div class="gd-text">RBI signals rate cut in June — repo held at 6.5% this meeting</div><span class="gd-sector">Banking → HDFCBANK, ICICIBANK, SBIN</span></div></div>
+    <div class="gd-item"><div class="gd-icon">💻</div><div><div class="gd-text">PLI for semiconductors extended 3 years with ₹76,000 Cr outlay</div><span class="gd-sector">Technology → DIXON, KAYNES</span></div></div>
+    <div class="gd-item"><div class="gd-icon">✈️</div><div><div class="gd-text">India-France ₹12B defence deal: 26 Rafale Marine jets signed</div><span class="gd-sector">Defence → HAL, BEL, BHEL</span></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box">
+    <h2>Start Tracking the<br><span style="background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Smart Money Now</span></h2>
+    <p>Free to use. No login required. Just open the dashboard, enable alerts, and never miss a market-moving announcement again.</p>
+    <div class="hero-btns">
+      <a href="/dashboard" class="btn-primary">🚀 Open Live Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">📈 StockIntel India</div>
+  <div class="f-links">
+    <a href="/dashboard">Dashboard</a>
+    <a href="#features">Features</a>
+    <a href="#whales">Whales</a>
+    <a href="#alerts">Alerts</a>
+  </div>
+  <div class="f-copy">© 2025 StockIntel India · NSE & BSE Intelligence</div>
+</footer>
+
+<style>
+@media(max-width:768px){.alert-grid{grid-template-columns:1fr !important}}
+</style>
+</body>
+</html>
