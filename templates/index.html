@@ -147,6 +147,15 @@ input[type=text].watch-input{background:#1a2235;border:1px solid #2a3a50;border-
 <div class="ticker-strip" id="tickerStrip">
   <div class="ticker-inner" id="tickerInner">Loading tickers...</div>
 </div>
+<div style="background:#0d1525;border-bottom:1px solid #1e2d40;padding:6px 24px;display:flex;gap:24px;align-items:center;font-size:.82rem;overflow-x:auto;white-space:nowrap">
+  <span style="color:#64748b;font-size:.72rem;font-weight:700;text-transform:uppercase">Indices</span>
+  <span id="idx-nifty"><span style="color:#94a3b8">NIFTY 50</span> <span style="color:#00ff88">—</span></span>
+  <span id="idx-sensex"><span style="color:#94a3b8">SENSEX</span> <span style="color:#00ff88">—</span></span>
+  <span id="idx-banknifty"><span style="color:#94a3b8">BANK NIFTY</span> <span style="color:#00ff88">—</span></span>
+  <span id="idx-niftyit"><span style="color:#94a3b8">NIFTY IT</span> <span style="color:#00ff88">—</span></span>
+  <span id="idx-midcap"><span style="color:#94a3b8">MIDCAP 100</span> <span style="color:#00ff88">—</span></span>
+  <span style="color:#64748b;font-size:.7rem;margin-left:auto">Updated <span id="idxTime">—</span></span>
+</div>
 
 <header>
   <div class="logo">
@@ -182,6 +191,10 @@ input[type=text].watch-input{background:#1a2235;border:1px solid #2a3a50;border-
     <div class="tab" onclick="switchTab('watchlist',this)">⭐ Watchlist</div>
     <div class="tab" onclick="switchTab('whales',this)">🐋 Whale Tracker</div>
     <div class="tab" onclick="switchTab('govt',this)">🏛️ Govt & Policy</div>
+    <div class="tab" onclick="switchTab('portfolio',this)">💼 Portfolio</div>
+    <div class="tab" onclick="switchTab('screener',this)">🔍 Screener</div>
+    <div class="tab" onclick="switchTab('calendar',this)">📅 Calendar &amp; IPO</div>
+    <div class="tab" onclick="switchTab('heatmap',this)">🌡️ Heatmap</div>
   </div>
 
   <!-- ANNOUNCEMENTS TAB -->
@@ -240,6 +253,65 @@ input[type=text].watch-input{background:#1a2235;border:1px solid #2a3a50;border-
     </div>
     <div id="govtList"><div class="loading">Fetching government news</div></div>
   </div>
+
+  <!-- PORTFOLIO TAB -->
+  <div class="tab-panel" id="tab-portfolio">
+    <div class="section-title">💼 My Portfolio — Live P&amp;L</div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <input id="portSymbol" placeholder="Symbol e.g. RELIANCE" style="background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:.85rem;width:160px">
+      <input id="portQty" placeholder="Qty" type="number" style="background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:.85rem;width:100px">
+      <input id="portAvg" placeholder="Avg Buy Price ₹" type="number" style="background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:.85rem;width:160px">
+      <button onclick="addPortfolioStock()" style="background:linear-gradient(135deg,#00d4ff,#00ff88);color:#000;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer">+ Add Stock</button>
+    </div>
+    <div id="portSummary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px"></div>
+    <div id="portList"></div>
+  </div>
+
+  <!-- SCREENER TAB -->
+  <div class="tab-panel" id="tab-screener">
+    <div class="section-title">🔍 Stock Screener — Filter & Discover</div>
+    <div class="filter-row" style="margin-bottom:16px">
+      <select id="scrSector" onchange="runScreener()" style="background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:6px 12px;color:#e2e8f0;font-size:.82rem">
+        <option value="">All Sectors</option>
+        <option value="IT">IT</option><option value="Banking">Banking</option>
+        <option value="Auto">Auto</option><option value="Pharma">Pharma</option>
+        <option value="Energy">Energy</option><option value="Infra">Infra</option>
+      </select>
+      <select id="scrImpact" onchange="runScreener()" style="background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:6px 12px;color:#e2e8f0;font-size:.82rem">
+        <option value="">Any Impact</option>
+        <option value="high">High Impact (7+)</option>
+        <option value="medium">Medium (4-6)</option>
+      </select>
+      <select id="scrSentiment" onchange="runScreener()" style="background:#1a2235;border:1px solid #2a3a50;border-radius:8px;padding:6px 12px;color:#e2e8f0;font-size:.82rem">
+        <option value="">Any Sentiment</option>
+        <option value="Positive">Bullish</option>
+        <option value="Negative">Bearish</option>
+      </select>
+    </div>
+    <div id="screenerResults"></div>
+  </div>
+
+  <!-- CALENDAR & IPO TAB -->
+  <div class="tab-panel" id="tab-calendar">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div class="section-title">📅 Earnings Calendar</div>
+        <div id="earningsCalendar"></div>
+      </div>
+      <div>
+        <div class="section-title">🚀 Upcoming IPOs</div>
+        <div id="ipoList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEATMAP TAB -->
+  <div class="tab-panel" id="tab-heatmap">
+    <div class="section-title">🌡️ Sector Heatmap — Live Price Movement</div>
+    <div id="heatmapGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:24px"></div>
+    <div class="section-title">📊 Technical Indicators</div>
+    <div id="techIndicators" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px"></div>
+  </div>
 </main>
 
 <script>
@@ -252,6 +324,7 @@ let currentGovtFilter = 'all';
 // INIT
 async function init() {
   loadTicker();
+  loadIndices();
   loadAnnouncements();
   loadGovtNews();
   loadWhales();
@@ -313,7 +386,7 @@ function renderAnnouncements() {
     <div class="card ${impactClass}">
       <div class="ann-header">
         <div>
-          <div class="ann-company">${a.company}</div>
+          <div class="ann-company" style="cursor:pointer" >${a.company}</div>
           <div class="ann-meta" style="margin-top:4px">
             <span class="badge ${sentBadge}">${dirArrow} ${a.sentiment}</span>
             <span class="badge ${typeBadge}">${a.type}</span>
@@ -360,7 +433,7 @@ function renderWatchlist() {
     return;
   }
   grid.innerHTML = watchlist.map(sym => `
-    <div class="watch-card" id="wcard-${sym}">
+    <div class="watch-card" id="wcard-${sym}" onclick="openChart('${sym}','${sym}','')">
       <button class="remove-btn" onclick="removeWatch('${sym}')">✕</button>
       <div class="sym">${sym}</div>
       <div class="w-price" id="wp-${sym}">Loading...</div>
@@ -520,6 +593,10 @@ function switchTab(tabId, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-'+tabId).classList.add('active');
   btn.classList.add('active');
+  if(tabId==='portfolio') renderPortfolio();
+  if(tabId==='screener') runScreener();
+  if(tabId==='calendar') loadCalendar();
+  if(tabId==='heatmap') loadHeatmap();
 }
 
 // REFRESH
@@ -530,11 +607,297 @@ function refreshAll() {
   renderWatchlist();
 }
 
+
+
+
+// ═══════════════════════════════════
+// INDEX PRICES (NIFTY / SENSEX)
+// ═══════════════════════════════════
+const INDEX_TICKERS = [
+  {id:'idx-nifty',sym:'^NSEI',label:'NIFTY 50'},
+  {id:'idx-sensex',sym:'^BSESN',label:'SENSEX'},
+  {id:'idx-banknifty',sym:'^NSEBANK',label:'BANK NIFTY'},
+  {id:'idx-niftyit',sym:'NIFTYIT.NS',label:'NIFTY IT'},
+  {id:'idx-midcap',sym:'NIFTYMIDCAP100.NS',label:'MIDCAP 100'},
+];
+const INDEX_MOCK = {
+  'idx-nifty':{price:22847,chg:+1.2},
+  'idx-sensex':{price:75210,chg:+0.9},
+  'idx-banknifty':{price:48320,chg:+1.8},
+  'idx-niftyit':{price:33150,chg:-0.4},
+  'idx-midcap':{price:51200,chg:+0.7},
+};
+async function loadIndices() {
+  for(const [id, d] of Object.entries(INDEX_MOCK)) {
+    const el = document.getElementById(id);
+    if(!el) continue;
+    const col = d.chg >= 0 ? '#00ff88' : '#ff4466';
+    const label = el.querySelector('span:first-child').textContent;
+    el.innerHTML = `<span style="color:#94a3b8">${label}</span> <b style="color:${col}">${d.price.toLocaleString('en-IN')}</b> <span style="color:${col};font-size:.75rem">${d.chg>=0?'+':''}${d.chg}%</span>`;
+  }
+  document.getElementById('idxTime').textContent = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ═══════════════════════════════════
+// TRADINGVIEW CHART MODAL
+// ═══════════════════════════════════
+function openChart(symbol, name, price) {
+  const modal = document.getElementById('chartModal');
+  modal.style.display = 'flex';
+  document.getElementById('chartModalTitle').textContent = name + ' (' + symbol + ')';
+  document.getElementById('chartModalPrice').textContent = price ? '₹' + price : '';
+  const container = document.getElementById('chartContainer');
+  container.innerHTML = '';
+  const tvSymbol = 'NSE:' + symbol;
+  const script = document.createElement('script');
+  script.src = 'https://s3.tradingview.com/tv.js';
+  script.onload = () => {
+    new TradingView.widget({
+      container_id: 'chartContainer',
+      symbol: tvSymbol,
+      interval: 'D',
+      timezone: 'Asia/Kolkata',
+      theme: 'dark',
+      style: '1',
+      locale: 'en',
+      toolbar_bg: '#111827',
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      save_image: true,
+      height: '100%',
+      width: '100%',
+      studies: ['RSI@tv-basicstudies','MACD@tv-basicstudies','BB@tv-basicstudies','MASimple@tv-basicstudies','MAExp@tv-basicstudies','VWAP@tv-basicstudies'],
+      show_popup_button: true
+    });
+  };
+  document.head.appendChild(script);
+}
+function closeChart() {
+  document.getElementById('chartModal').style.display = 'none';
+  document.getElementById('chartContainer').innerHTML = '';
+}
+document.getElementById('chartModal').addEventListener('click', function(e){ if(e.target===this) closeChart(); });
+
+// ═══════════════════════════════════
+// PORTFOLIO TRACKER
+// ═══════════════════════════════════
+let portfolio = JSON.parse(localStorage.getItem('portfolio') || '[]');
+
+function addPortfolioStock() {
+  const sym = document.getElementById('portSymbol').value.trim().toUpperCase();
+  const qty = parseFloat(document.getElementById('portQty').value);
+  const avg = parseFloat(document.getElementById('portAvg').value);
+  if(!sym || !qty || !avg) return alert('Fill all fields');
+  const existing = portfolio.find(p => p.sym === sym);
+  if(existing) { existing.qty = qty; existing.avg = avg; }
+  else portfolio.push({sym, qty, avg});
+  localStorage.setItem('portfolio', JSON.stringify(portfolio));
+  renderPortfolio();
+}
+
+async function renderPortfolio() {
+  const list = document.getElementById('portList');
+  const summary = document.getElementById('portSummary');
+  if(!portfolio.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">💼</div><p>Add your stocks to track live P&L</p></div>';
+    summary.innerHTML = '';
+    return;
+  }
+  let totalInvested = 0, totalCurrent = 0;
+  const rows = await Promise.all(portfolio.map(async p => {
+    let ltp = null;
+    try { const r = await fetch('/api/stock-price/'+p.sym); const d = await r.json(); ltp = d.price; } catch(e){}
+    const invested = p.qty * p.avg;
+    const current = ltp ? p.qty * ltp : invested;
+    const pnl = current - invested;
+    const pnlPct = (pnl / invested * 100).toFixed(2);
+    totalInvested += invested; totalCurrent += current;
+    const cl = pnl >= 0 ? 'green' : 'red';
+    return `<div class="card" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto;gap:12px;align-items:center">
+      <div><b style="color:#00d4ff;cursor:pointer" onclick="openChart('${p.sym}','${p.sym}','${ltp||''}')">${p.sym}</b><br><span style="font-size:.72rem;color:#64748b">${p.qty} shares @ ₹${p.avg}</span></div>
+      <div><span style="font-size:.72rem;color:#64748b">LTP</span><br><b>${ltp ? '₹'+ltp.toFixed(2) : '—'}</b></div>
+      <div><span style="font-size:.72rem;color:#64748b">Invested</span><br><b>₹${(invested/100000).toFixed(1)}L</b></div>
+      <div><span style="font-size:.72rem;color:#64748b">Current</span><br><b>₹${(current/100000).toFixed(1)}L</b></div>
+      <div><span style="font-size:.72rem;color:#64748b">P&L</span><br><b class="${cl}">${pnl>=0?'+':''}₹${Math.abs(pnl).toFixed(0)}</b></div>
+      <div><span style="font-size:.72rem;color:#64748b">Return</span><br><b class="${cl}">${pnl>=0?'+':''}${pnlPct}%</b></div>
+      <button onclick="removePortStock('${p.sym}')" style="background:#ff4466;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.75rem">✕</button>
+    </div>`;
+  }));
+  list.innerHTML = rows.join('');
+  const totalPnl = totalCurrent - totalInvested;
+  const totalPct = (totalPnl/totalInvested*100).toFixed(2);
+  const cl = totalPnl >= 0 ? '#00ff88' : '#ff4466';
+  summary.innerHTML = `
+    <div class="stat-card"><span class="label">Total Invested</span><span class="value accent">₹${(totalInvested/100000).toFixed(1)}L</span></div>
+    <div class="stat-card"><span class="label">Current Value</span><span class="value" style="color:${cl}">₹${(totalCurrent/100000).toFixed(1)}L</span></div>
+    <div class="stat-card"><span class="label">Total P&L</span><span class="value" style="color:${cl}">${totalPnl>=0?'+':''}₹${Math.abs(totalPnl).toFixed(0)}</span></div>
+    <div class="stat-card"><span class="label">Returns</span><span class="value" style="color:${cl}">${totalPnl>=0?'+':''}${totalPct}%</span></div>`;
+}
+
+function removePortStock(sym) {
+  portfolio = portfolio.filter(p => p.sym !== sym);
+  localStorage.setItem('portfolio', JSON.stringify(portfolio));
+  renderPortfolio();
+}
+
+// ═══════════════════════════════════
+// SCREENER
+// ═══════════════════════════════════
+const SECTOR_MAP = {RELIANCE:'Energy',TCS:'IT',INFY:'IT',WIPRO:'IT',HCLTECH:'IT',HDFCBANK:'Banking',ICICIBANK:'Banking',KOTAKBANK:'Banking',AXISBANK:'Banking',SBIN:'Banking',TATAMOTORS:'Auto',MARUTI:'Auto',TATASTEEL:'Infra',SUNPHARMA:'Pharma',ONGC:'Energy'};
+
+async function runScreener() {
+  const sector = document.getElementById('scrSector').value;
+  const impact = document.getElementById('scrImpact').value;
+  const sentiment = document.getElementById('scrSentiment').value;
+  const res = document.getElementById('screenerResults');
+  res.innerHTML = '<div class="loading">Screening stocks...</div>';
+  const r = await fetch('/api/announcements');
+  let data = await r.json();
+  if(sector) data = data.filter(a => (SECTOR_MAP[a.company]||'').toLowerCase().includes(sector.toLowerCase()));
+  if(impact === 'high') data = data.filter(a => a.impact >= 7);
+  if(impact === 'medium') data = data.filter(a => a.impact >= 4 && a.impact < 7);
+  if(sentiment) data = data.filter(a => a.sentiment === sentiment);
+  if(!data.length) { res.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>No stocks match your filters</p></div>'; return; }
+  res.innerHTML = data.map(a => `<div class="card ${a.sentiment==='Positive'?'high-impact':a.sentiment==='Negative'?'negative':'medium-impact'}" style="cursor:pointer" onclick="openChart('${a.company}','${a.company}','')">
+    <div class="ann-header"><div><span class="ann-company" style="cursor:pointer" >${a.company}</span> <span style="font-size:.75rem;color:#64748b">${SECTOR_MAP[a.company]||'Mixed'}</span></div>
+    <div class="ann-meta"><span class="badge" style="background:${a.sentiment==='Positive'?'#00ff8820':a.sentiment==='Negative'?'#ff446620':'#ffd70020'};color:${a.sentiment==='Positive'?'#00ff88':a.sentiment==='Negative'?'#ff4466':'#ffd700'}">${a.type}</span>
+    <span class="badge" style="background:#1a2235;color:#fff">Impact ${a.impact}/10</span></div></div>
+    <div style="font-size:.85rem;color:#94a3b8;margin-bottom:6px">${a.insight||a.title}</div>
+    <div style="font-size:.75rem;color:#64748b">📊 Click to view full chart with indicators</div>
+  </div>`).join('');
+}
+
+// ═══════════════════════════════════
+// EARNINGS CALENDAR & IPO
+// ═══════════════════════════════════
+const EARNINGS = [
+  {company:'RELIANCE',date:'2026-05-22',type:'Q4 Results',estimate:'₹18,200 Cr PAT',prev:'₹17,900 Cr'},
+  {company:'TCS',date:'2026-05-15',type:'Q4 Results',estimate:'₹12,500 Cr PAT',prev:'₹12,100 Cr'},
+  {company:'HDFCBANK',date:'2026-05-18',type:'Q4 Results',estimate:'₹17,800 Cr PAT',prev:'₹16,500 Cr'},
+  {company:'INFY',date:'2026-05-20',type:'Q4 Results',estimate:'₹7,200 Cr PAT',prev:'₹6,900 Cr'},
+  {company:'ICICIBANK',date:'2026-05-25',type:'Q4 Results',estimate:'₹11,500 Cr PAT',prev:'₹10,700 Cr'},
+  {company:'WIPRO',date:'2026-06-01',type:'Q1 Guidance',estimate:'1-3% QoQ growth',prev:'0.5% QoQ'},
+  {company:'TATAMOTORS',date:'2026-06-03',type:'Q4 Results',estimate:'₹8,500 Cr PAT',prev:'₹7,200 Cr'},
+  {company:'SUNPHARMA',date:'2026-06-05',type:'Q4 Results',estimate:'₹3,100 Cr PAT',prev:'₹2,800 Cr'},
+];
+const IPOS = [
+  {company:'Hexaware Technologies',date:'2026-05-20',price:'₹674-708',size:'₹8,750 Cr',sector:'IT',gmp:'+₹85 (12%)'},
+  {company:'Ather Energy',date:'2026-05-28',price:'₹304-321',size:'₹2,981 Cr',sector:'EV',gmp:'+₹42 (13%)'},
+  {company:'NTPC Green Energy',date:'2026-06-05',price:'₹108-114',size:'₹10,000 Cr',sector:'Energy',gmp:'+₹18 (16%)'},
+  {company:'Swiggy',date:'2026-06-12',price:'₹371-390',size:'₹4,500 Cr',sector:'Foodtech',gmp:'+₹55 (14%)'},
+  {company:'Mobikwik',date:'2026-06-18',price:'₹235-247',size:'₹572 Cr',sector:'Fintech',gmp:'+₹30 (12%)'},
+];
+
+function loadCalendar() {
+  document.getElementById('earningsCalendar').innerHTML = EARNINGS.map(e => {
+    const daysLeft = Math.ceil((new Date(e.date)-new Date())/86400000);
+    const urgency = daysLeft <= 7 ? '#ff4466' : daysLeft <= 14 ? '#ffd700' : '#00d4ff';
+    return `<div class="card" style="cursor:pointer;border-left:3px solid ${urgency}" onclick="openChart('${e.company}','${e.company}','')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <b style="color:${urgency}">${e.company}</b>
+        <span style="font-size:.72rem;background:#1a2235;padding:2px 8px;border-radius:999px;color:#e2e8f0">${daysLeft > 0 ? 'In '+daysLeft+'d' : 'Today!'}</span>
+      </div>
+      <div style="font-size:.8rem;color:#94a3b8;margin:4px 0">${e.type} — ${e.date}</div>
+      <div style="font-size:.78rem"><span style="color:#64748b">Est: </span><b style="color:#00ff88">${e.estimate}</b> <span style="color:#64748b">vs prev </span><span>${e.prev}</span></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('ipoList').innerHTML = IPOS.map(i => `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <b style="color:#00d4ff">${i.company}</b>
+      <span class="badge" style="background:#8b5cf620;color:#8b5cf6">${i.sector}</span>
+    </div>
+    <div style="font-size:.8rem;color:#94a3b8;margin:4px 0">📅 ${i.date} &nbsp;|&nbsp; 💰 ${i.price}</div>
+    <div style="font-size:.78rem;display:flex;gap:16px">
+      <span><span style="color:#64748b">Size: </span><b>${i.size}</b></span>
+      <span><span style="color:#64748b">GMP: </span><b style="color:#00ff88">${i.gmp}</b></span>
+    </div>
+  </div>`).join('');
+}
+
+// ═══════════════════════════════════
+// SECTOR HEATMAP
+// ═══════════════════════════════════
+const HEATMAP_STOCKS = [
+  {sym:'RELIANCE',sector:'Energy'},{sym:'ONGC',sector:'Energy'},
+  {sym:'TCS',sector:'IT'},{sym:'INFY',sector:'IT'},{sym:'WIPRO',sector:'IT'},{sym:'HCLTECH',sector:'IT'},
+  {sym:'HDFCBANK',sector:'Banking'},{sym:'ICICIBANK',sector:'Banking'},{sym:'KOTAKBANK',sector:'Banking'},{sym:'SBIN',sector:'Banking'},
+  {sym:'TATAMOTORS',sector:'Auto'},{sym:'MARUTI',sector:'Auto'},
+  {sym:'TATASTEEL',sector:'Infra'},{sym:'SUNPHARMA',sector:'Pharma'},
+];
+const TECH_SIGNALS = [
+  {sym:'RELIANCE',rsi:58,macd:'Bullish','52w':'H: ₹1580 L: ₹1210',trend:'↑ Uptrend',signal:'BUY'},
+  {sym:'TCS',rsi:45,macd:'Neutral','52w':'H: ₹4290 L: ₹3190',trend:'→ Sideways',signal:'HOLD'},
+  {sym:'HDFCBANK',rsi:62,macd:'Bullish','52w':'H: ₹1890 L: ₹1420',trend:'↑ Uptrend',signal:'BUY'},
+  {sym:'INFY',rsi:38,macd:'Bearish','52w':'H: ₹1960 L: ₹1280',trend:'↓ Downtrend',signal:'WAIT'},
+  {sym:'TATAMOTORS',rsi:71,macd:'Bullish','52w':'H: ₹1020 L: ₹610',trend:'↑ Strong',signal:'BUY'},
+  {sym:'ICICIBANK',rsi:55,macd:'Bullish','52w':'H: ₹1380 L: ₹980',trend:'↑ Uptrend',signal:'BUY'},
+  {sym:'SBIN',rsi:49,macd:'Neutral','52w':'H: ₹912 L: ₹620',trend:'→ Sideways',signal:'HOLD'},
+  {sym:'SUNPHARMA',rsi:66,macd:'Bullish','52w':'H: ₹1820 L: ₹1240',trend:'↑ Uptrend',signal:'BUY'},
+];
+
+async function loadHeatmap() {
+  const grid = document.getElementById('heatmapGrid');
+  grid.innerHTML = '<div class="loading">Loading heatmap...</div>';
+  const prices = await (await fetch('/api/stock-prices')).json();
+  const MOCK_CHANGES = {RELIANCE:1.8,TCS:-0.4,INFY:-1.2,HCLTECH:0.9,WIPRO:-0.7,HDFCBANK:2.1,ICICIBANK:1.5,KOTAKBANK:0.3,SBIN:0.8,AXISBANK:-0.2,TATAMOTORS:3.2,MARUTI:1.1,TATASTEEL:-0.9,SUNPHARMA:2.4,ONGC:0.6};
+  grid.innerHTML = HEATMAP_STOCKS.map(s => {
+    const chg = MOCK_CHANGES[s.sym] || 0;
+    const price = prices[s.sym] ? '₹'+prices[s.sym].toFixed(0) : '—';
+    const intensity = Math.min(Math.abs(chg)/4, 1);
+    const bg = chg > 0 ? `rgba(0,255,136,${0.1+intensity*0.3})` : `rgba(255,68,102,${0.1+intensity*0.3})`;
+    const col = chg > 0 ? '#00ff88' : '#ff4466';
+    return `<div onclick="openChart('${s.sym}','${s.sym}','${prices[s.sym]||''}')" style="background:${bg};border:1px solid ${col}30;border-radius:12px;padding:14px;cursor:pointer;transition:.2s;text-align:center" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+      <div style="font-weight:700;color:${col};font-size:1rem">${s.sym}</div>
+      <div style="font-size:.75rem;color:#64748b;margin:2px 0">${s.sector}</div>
+      <div style="font-size:.9rem;font-weight:600">${price}</div>
+      <div style="font-size:.85rem;color:${col};font-weight:700">${chg>=0?'+':''}${chg}%</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('techIndicators').innerHTML = TECH_SIGNALS.map(t => {
+    const sc = t.signal==='BUY'?'#00ff88':t.signal==='WAIT'?'#ff4466':'#ffd700';
+    const rsiCol = t.rsi>70?'#ff4466':t.rsi<30?'#00ff88':'#ffd700';
+    return `<div class="card" style="cursor:pointer" onclick="openChart('${t.sym}','${t.sym}','')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <b style="color:#00d4ff;font-size:1rem">${t.sym}</b>
+        <span style="background:${sc}20;color:${sc};font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px">${t.signal}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.78rem">
+        <div><span style="color:#64748b">RSI:</span> <b style="color:${rsiCol}">${t.rsi}</b></div>
+        <div><span style="color:#64748b">MACD:</span> <b>${t.macd}</b></div>
+        <div style="grid-column:span 2"><span style="color:#64748b">52W:</span> <b>${t['52w']}</b></div>
+        <div style="grid-column:span 2"><span style="color:#64748b">Trend:</span> <b>${t.trend}</b></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // START
 init();
 setInterval(loadTicker, 60000);
+setInterval(loadIndices, 60000);
 setInterval(loadAnnouncements, 300000);
 </script>
+
+<!-- TRADINGVIEW CHART MODAL -->
+<div id="chartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#111827;border:1px solid #2a3a50;border-radius:16px;width:92vw;max-width:1100px;height:85vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #2a3a50">
+      <div>
+        <span id="chartModalTitle" style="font-size:1.1rem;font-weight:700;color:#00d4ff"></span>
+        <span id="chartModalPrice" style="margin-left:12px;font-size:1rem;color:#00ff88;font-weight:600"></span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:.75rem;color:#64748b">Powered by TradingView</span>
+        <button onclick="closeChart()" style="background:#ff4466;color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700">✕ Close</button>
+      </div>
+    </div>
+    <div id="chartContainer" style="flex:1;min-height:0"></div>
+  </div>
+</div>
+
 </body>
 </html>
 <script>
